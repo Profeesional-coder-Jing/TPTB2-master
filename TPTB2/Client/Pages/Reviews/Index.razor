@@ -1,0 +1,68 @@
+﻿@page "/reviews/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@using TPTB2.Shared.Domain
+
+<h3>Past Reviews</h3>
+<a href="/reviews/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Review
+</a>
+<br />
+<br />
+@if (Reviews == null)
+{
+    <div class="alert alert-info">Loading Makes...</div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Text</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var review in Reviews)
+            {
+                <tr>
+                    <td>@review.Name</td>
+                    <td>@review.Text</td>
+                    <td>
+                        <a href="/reviews/view/@review.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/reviews/edit/@review.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(review.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+
+@code {
+    private List<Reviews> Reviews;
+    protected async override Task OnInitializedAsync()
+    {
+        Reviews = await _client.GetFromJsonAsync<List<Reviews>>($"{Endpoints.ReviewsEndpoint}");
+    }
+
+    async Task Delete(int reviewId)
+    {
+        var reviews = Reviews.First(q => q.Id == reviewId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {reviews.Name} ?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.ReviewsEndpoint}/{reviewId}");
+            await OnInitializedAsync();
+        }
+    }
+}

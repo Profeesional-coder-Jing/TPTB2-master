@@ -1,0 +1,88 @@
+﻿@page "/users/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager   
+
+<h3>Create new Users</h3>
+<hr />
+<br />
+
+<EditForm Model="@users" OnValidSubmit="CreateUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Reviews: </label>
+        <div>
+            <InputSelect @bind-Value="users.ReviewsId" class="form-control">
+                <option value="">-- Select Review --</option>
+                @if (Reviews != null)
+                {
+                    foreach (var review in Reviews)
+                    {
+                        <option value="@review.Id">@review.Text</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => users.ReviewsId)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Payments: </label>
+        <div>
+            <InputSelect @bind-Value="users.PaymentsId" class="form-control">
+                <option value="">-- Select Review --</option>
+                @if (Payments != null)
+                {
+                    foreach (var payment in Payments)
+                    {
+                        <option value="@payment.Id">@payment.CardNumber</option>
+                    }
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => users.PaymentsId)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Email: </label>
+        <div>
+            <InputText @bind-Value="@users.Email" class="form-control" />
+            <ValidationMessage For="@(() => users.Email)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Contact: </label>
+        <div>
+            <InputText @bind-Value="@users.Contact" class="form-control" />
+            <ValidationMessage For="@(() => users.Contact)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Name: </label>
+        <div>
+            <InputText @bind-Value="@users.Username" class="form-control" />
+            <ValidationMessage For="@(() => users.Username)" />
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success btn-block">
+        Create User
+    </button>
+</EditForm>
+
+@code {
+    Users users = new Users();
+
+    private IList<Reviews> Reviews;
+    private IList<Payments> Payments;
+
+    protected async override Task OnInitializedAsync()
+    {
+        Reviews = await _client.GetFromJsonAsync<List<Reviews>>($"{Endpoints.ReviewsEndpoint}");
+        Payments = await _client.GetFromJsonAsync<List<Payments>>($"{Endpoints.PaymentsEndpoint}");
+    }
+
+    private async Task CreateUser()
+    {
+        await _client.PostAsJsonAsync(Endpoints.UsersEndpoint, users);
+        _navManager.NavigateTo("/users/");
+    }
+}

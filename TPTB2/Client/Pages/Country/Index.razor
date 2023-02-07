@@ -1,0 +1,63 @@
+﻿@page "/country/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@using TPTB2.Shared.Domain
+
+<h3>Countries</h3>
+<a href="/country/create" class="btn btn-secondary">
+    <span class="oi oi-plus"></span>
+    Create New Country
+</a>
+<br />
+<br />
+@if (Country == null)
+{
+<div class="alert alert-info">Loading Makes...</div> }
+            else
+            {
+<table class="table table-responsive">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Text</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var country in Country)
+        {
+<tr>
+    <td>@country.Name</td>
+    <td>@country.Text</td>
+    <td>
+        <a href="/country/view/@country.Id" class="btn btn-primary">
+            <span class="oi oi-book"></span>
+        </a>
+        <a href="/country/edit/@country.Id" class="btn btn-warning">
+            <span class="oi oi-pencil"></span>
+        </a>
+        <button class="btn btn-danger" @onclick="@(()=>Delete(country.Id))">
+            <span class="oi oi-delete"></span>
+        </button>
+    </td>
+</tr>}
+    </tbody>
+</table>}
+<br />
+
+@code { private List<Country> Country;
+    protected async override Task OnInitializedAsync()
+    {
+        Country = await _client.GetFromJsonAsync<List<Country>>($"{Endpoints.CountryEndpoint}");
+    }
+
+    async Task Delete(int CountryId)
+    {
+        var country = Country.First(q => q.Id == CountryId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {country.Name} ?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.CountryEndpoint}/{CountryId}");
+            await OnInitializedAsync();
+        }
+    } }

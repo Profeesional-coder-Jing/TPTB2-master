@@ -1,0 +1,32 @@
+﻿@page "/makes/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Create Make</h3>
+<hr />
+<br />
+<EditForm Model="@makes" OnValidSubmit="CreateMakes">
+    <div class="form-group">
+        <label>Name: </label>
+        <div>
+            <InputText @bind-Value="@Makes.Name" class="form-control" />
+            <ValidationMessage For="@(() => Makes.Name)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Capital: </label>
+        <div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success btn-block">
+        Create C
+    </button>
+</EditForm>
+@code {
+    Makes makes = new Makes();
+    private async Task CreateMakes()
+    {
+        await _client.PostAsJsonAsync(Endpoints.MakesEndpoint, makes);
+        _navManager.NavigateTo("/makes/");
+    }
+}

@@ -1,0 +1,61 @@
+﻿@page "/makes/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+@using TPTB2.Shared.Domain
+
+<h3>Makes Details</h3>
+@if (Makes == null)
+{
+    <div class="alert alert-info">Loading Makes...</div>
+}
+else
+{
+    <table class="table table-responsive">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var make in MakeList)
+            {
+                <tr>
+                    <td>@make.Name</td>
+                    <td>
+                        <a href="/make/view/@make.Id" class="btn btn-primary">
+                            <span class="oi oi-book"></span>
+                        </a>
+                        <a href="/make/edit/@make.Id" class="btn btn-warning">
+                            <span class="oi oi-pencil"></span>
+                        </a>
+                        <button class="btn btn-danger" @onclick="@(()=>Delete(make.Id))">
+                            <span class="oi oi-delete"></span>
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+<br />
+
+@code {
+    private List<Makes> MakeList;
+
+    protected async override Task OnInitializedAsync()
+    {
+        MakeList = await _client.GetFromJsonAsync<List<Makes>>($"{Endpoints.MakesEndpoint}");
+    }
+
+    async Task Delete(int makeId)
+    {
+        var make = MakeList.First(q => q.Id == makeId);
+        var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {make.Name} ?");
+        if (confirm)
+        {
+            await _client.DeleteAsync($"{Endpoints.MakesEndpoint}/{makeId}");
+            await OnInitializedAsync();
+        }
+    }
+}

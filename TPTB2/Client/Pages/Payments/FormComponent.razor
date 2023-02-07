@@ -1,0 +1,48 @@
+﻿<EditForm Model="@payments" OnValidSubmit="OnValidSubmit">
+    <div class="form-group">
+        <label>Name: </label>
+        <div>
+            <InputDate @bind-Value="@payments.Name" class="form-control" />
+            <ValidationMessage For="@(() => payments.Name)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Name: </label>
+        <div>
+            <InputDate @bind-Value="@payments.Name" class="form-control" />
+            <ValidationMessage For="@(() => payments.Name)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>CardNumber: </label>
+        <div>
+            <InputText @bind-Value="@payments.CardNumber" class="form-control" />
+            <ValidationMessage For="@(() => payments.CardNumber)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>SecurityCode: </label>
+        <div>
+            <InputText @bind-Value="@payments.SecurityCode" class="form-control" />
+            <ValidationMessage For="@(() => payments.SecurityCode)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>DateOfExpiry: </label>
+        <div>
+            <InputDate @bind-Value="@payments.DateOfExpiry" class="form-control" />
+            <ValidationMessage For="@(() => payments.DateOfExpiry)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success btn-block">
+        @ButtonText
+    </button>
+    <BackToList Target="payments" />
+</EditForm>
+
+@code {
+    [Parameter] public Payments payments { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}

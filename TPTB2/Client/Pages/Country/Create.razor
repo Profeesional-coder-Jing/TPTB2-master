@@ -1,0 +1,32 @@
+﻿@page "/country/create/"
+@inject HttpClient _client
+@inject NavigationManager _navManager
+
+<h3>Create new Country</h3>
+<hr />
+<br />
+<EditForm Model="@country" OnValidSubmit="CreateCountry">
+    <div class="form-group">
+        <label>Name: </label>
+        <div>
+            <InputText @bind-Value="@country.Name" class="form-control" />
+            <ValidationMessage For="@(() => country.Name)" />
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Capital: </label>
+        <div>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success btn-block">
+        Create Country
+    </button>
+</EditForm>
+@code {
+    Country country = new Country();
+    private async Task CreateCountry()
+    {
+        await _client.PostAsJsonAsync(Endpoints.CountryEndpoint, country);
+        _navManager.NavigateTo("/country/");
+    }
+}
